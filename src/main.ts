@@ -6,7 +6,7 @@ class DrawingApp {
   private clickX: number[] = [];
   private clickY: number[] = [];
 
-  private colonyCount: number = 0;
+  private colonyCount = 0;
   private colonyCountDisplay: HTMLElement;
 
   constructor() {
@@ -24,7 +24,7 @@ class DrawingApp {
 
     this.img = new Image();
     this.img.src = 'colonies.png';
-    this.img.onload = () => {
+    this.img.onload = (): void => {
       this.drawImageScaled();
     };
 
@@ -32,7 +32,7 @@ class DrawingApp {
     this.createUserEvents();
   }
 
-  private createUserEvents() {
+  private createUserEvents(): void {
     const canvas = this.canvas;
 
     canvas.addEventListener('mousedown', this.pressEventHandler);
@@ -43,7 +43,7 @@ class DrawingApp {
       .addEventListener('click', this.clearEventHandler);
   }
 
-  private drawImageScaled() {
+  private drawImageScaled(): void {
     const canvas = this.context.canvas;
     const img = this.img;
     const hRatio = canvas.width / img.width;
@@ -64,42 +64,43 @@ class DrawingApp {
     );
   }
 
-  private redraw() {
+  private redraw(): void {
     const clickX = this.clickX;
     const clickY = this.clickY;
     const context = this.context;
 
     for (let i = 0; i < clickX.length; ++i) {
       context.beginPath();
-      context.arc(clickX[i],clickY[i], 10, 0, 2*Math.PI);
+      context.arc(clickX[i], clickY[i], 10, 0, 2 * Math.PI);
       context.stroke();
     }
 
     context.closePath();
   }
 
-  private addClick(x: number, y: number) {
+  private addClick(x: number, y: number): void {
     this.clickX.push(x);
     this.clickY.push(y);
     this.colonyCount++;
     this.updateCounterDisplay();
   }
 
-  private updateCounterDisplay() {
-     this.colonyCountDisplay.innerHTML = "Colony Count : " + this.colonyCount.toString();
+  private updateCounterDisplay(): void {
+    this.colonyCountDisplay.innerHTML =
+      'Colony Count : ' + this.colonyCount.toString();
   }
 
-  private clearCanvas() {
+  private clearCanvas(): void {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.clickX = [];
     this.clickY = [];
   }
 
-  private clearEventHandler = () => {
+  private clearEventHandler = (): void => {
     this.clearCanvas();
   };
 
-  private pressEventHandler = (e: MouseEvent | TouchEvent) => {
+  private pressEventHandler = (e: MouseEvent | TouchEvent): void => {
     let mouseX = (e as TouchEvent).changedTouches
       ? (e as TouchEvent).changedTouches[0].pageX
       : (e as MouseEvent).pageX;
