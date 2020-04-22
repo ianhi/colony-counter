@@ -2,6 +2,7 @@ class DrawingApp {
   private canvas: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
   private paint: boolean;
+  private img: HTMLImageElement;
 
   private clickX: number[] = [];
   private clickY: number[] = [];
@@ -18,6 +19,11 @@ class DrawingApp {
     this.canvas = canvas;
     this.context = context;
 
+    this.img = new Image();
+    this.img.src = 'colonies.png';
+    this.img.onload = () => {
+      this.context.drawImage(this.img, 0, 0);
+    }
     this.redraw();
     this.createUserEvents();
   }
@@ -40,8 +46,10 @@ class DrawingApp {
   }
 
   private redraw() {
+    
     const clickX = this.clickX;
     const context = this.context;
+    //context.drawImage(this.img, 0, 0);
     const clickDrag = this.clickDrag;
     const clickY = this.clickY;
     for (let i = 0; i < clickX.length; ++i) {
@@ -53,6 +61,7 @@ class DrawingApp {
       }
 
       context.lineTo(clickX[i], clickY[i]);
+      context.strokeStyle = '#ff0000';
       context.stroke();
     }
     context.closePath();

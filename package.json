@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "count colonies on agar plates",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -b",
     "clean": "rimraf lib tsconfig.tsbuildinfo",
     "eslint": "eslint . --ext .ts,.tsx --fix",
     "eslint:check": "eslint . --ext .ts,.tsx",
