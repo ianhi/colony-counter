@@ -22,7 +22,8 @@ class DrawingApp {
     this.img = new Image();
     this.img.src = 'colonies.png';
     this.img.onload = () => {
-      this.context.drawImage(this.img, 0, 0);
+      this.drawImageScaled();
+      //      this.context.drawImage(this.img, 0, 0);
     }
     this.redraw();
     this.createUserEvents();
@@ -45,6 +46,17 @@ class DrawingApp {
       .addEventListener('click', this.clearEventHandler);
   }
 
+  private drawImageScaled(){
+    const canvas = this.context.canvas;
+    const img = this.img;
+    let hRatio = canvas.width /img.width;
+    let vRatio = canvas.height /img.height;
+    let ratio = Math.min(hRatio, vRatio);
+    let centerShift_x = ( canvas.width - img.width*ratio ) / 2;
+    let centerShift_y = ( canvas.height - img.height*ratio ) / 2;
+    this.context.drawImage(img, 0,0, img.width, img.height,
+                      centerShift_x,centerShift_y,img.width*ratio, img.height*ratio);
+  }
   private redraw() {
     
     const clickX = this.clickX;
