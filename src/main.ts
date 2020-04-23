@@ -14,7 +14,7 @@ class DrawingApp {
     const context = canvas.getContext('2d');
     context.lineCap = 'round';
     context.lineJoin = 'round';
-    context.strokeStyle = 'red';
+    context.fillStyle = 'rgba(255, 0, 0, 0.5)';
     context.lineWidth = 2;
 
     this.canvas = canvas;
