@@ -71,7 +71,7 @@ class DrawingApp {
 
     for (let i = 0; i < clickX.length; ++i) {
       context.beginPath();
-      context.arc(clickX[i], clickY[i], 10, 0, 2 * Math.PI);
+      context.arc(clickX[i], clickY[i], 2.5, 0, 2 * Math.PI);
       context.fill();
     }
 
