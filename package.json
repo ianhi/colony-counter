@@ -35,9 +35,8 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "eslint . --ext .ts,.tsx --fix",
-      "git add"
-    ]
+      "eslint . --ext .ts,.tsx --fix"
+   ]
   },
   "main": "lib/index.js"
 }
