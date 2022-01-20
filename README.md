@@ -1,8 +1,8 @@
 ### Roadmap
-Contained in the issues, ordered by priority:  
-[Fundamental](https://github.com/ianhi/colony-counter/issues/2)  
-[Nice](https://github.com/ianhi/colony-counter/issues/4)  
-[The dream](https://github.com/ianhi/colony-counter/issues/3)  
+Contained in the issues, ordered by priority:
+[Fundamental](https://github.com/ianhi/colony-counter/issues/2)
+[Nice](https://github.com/ianhi/colony-counter/issues/4)
+[The dream](https://github.com/ianhi/colony-counter/issues/3)
 ### Development
 
 To build and see result in the colony-counter folder run the following commands:
