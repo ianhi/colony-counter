@@ -19,6 +19,7 @@ jobs:
           mkdir dist
           cp index.html dist
           cp colonies.png dist
+          cp css dist -r
           cp lib dist -r
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.3

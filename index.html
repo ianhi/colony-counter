@@ -1,27 +1,69 @@
 <html>
-
-<head>
-    <meta charset="utf-8">
+  <head>
+    <meta charset="utf-8" />
     <title>colony counter</title>
+    <script>
+      // TODO: make this toggleable
+      document.documentElement.setAttribute('data-theme', 'dark');
+    </script>
+    <link rel="stylesheet" href="css/minstyle.io.css" />
     <style>
-    #wrapper{
-        position:relative;
-    }
-    #pointCanvas,#imgCanvas{
-        position:absolute; top:0px; left:0px;
-    }
+      #wrapper {
+        position: relative;
+      }
+      #pointCanvas,
+      #imgCanvas {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+      }
+      #content {
+        max-width: 750px;
+        margin: auto;
+      }
+      /* #controls {
+        display: inline-block;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        max-width: 90%;
+      } */
+      .upload-img {
+        max-height: 100%;
+        max-width: 100%;
+        margin: auto;
+        object-fit: contain;
+      }
+      img.upload {
+        background: url(_static/upload.svg) no-repeat top left;
+        background-size: contain;
+        cursor: pointer;
+        display: inline-block;
+        height: 100%;
+        width: 100%;
+      }
     </style>
-</head>
+  </head>
 
-<body>
-    <button id="clear">clear</button>
-    <p id="colonyCounter">Colony Count : 0</p>
-    <div id="wrapper">
+  <body>
+    <div id="content">
+      <p id="colonyCounter">Colony Count : 0</p>
+      <!-- TODO: Add icons from feathericons to these buttons -->
+      <div id="imageControls" class="btn-group">
+        <button id="clear" class="ms-btn">
+          upload new image
+        </button>
+        <button id="save" class="ms-btn">save image</button>
+        </div>
+        <div class="btn-group">
+        <button id="clear" class="ms-btn ms-info">clear points</button>
+      </div>
+      <div id="wrapper">
         <canvas id="imgCanvas" width="490" height="490"></canvas>
         <canvas id="pointCanvas" width="490" height="490"></canvas>
+      </div>
     </div>
-
     <script src="lib/main.js"></script>
-</body>
-
+  </body>
 </html>
