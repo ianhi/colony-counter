@@ -1,15 +1,26 @@
 <html>
 
 <head>
+    <meta charset="utf-8">
     <title>colony counter</title>
+    <style>
+    #wrapper{
+        position:relative;
+    }
+    #pointCanvas,#imgCanvas{
+        position:absolute; top:0px; left:0px;
+    }
+    </style>
 </head>
 
 <body>
     <button id="clear">clear</button>
     <p id="colonyCounter">Colony Count : 0</p>
-    <canvas id="canvas" width="490" height="490"
-            style="border: 1px solid black;">
-    </canvas>
+    <div id="wrapper">
+        <canvas id="imgCanvas" width="490" height="490"></canvas>
+        <canvas id="pointCanvas" width="490" height="490"></canvas>
+    </div>
+
     <script src="lib/main.js"></script>
 </body>
 

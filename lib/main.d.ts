@@ -1,6 +1,8 @@
 declare class DrawingApp {
-    private canvas;
-    private context;
+    private imgCanvas;
+    private pointCanvas;
+    private imgContext;
+    private pointContext;
     private img;
     private clickX;
     private clickY;
@@ -9,10 +11,10 @@ declare class DrawingApp {
     constructor();
     private createUserEvents;
     private drawImageScaled;
-    private redraw;
+    private drawPoint;
     private addClick;
     private updateCounterDisplay;
-    private clearCanvas;
+    private clearPoints;
     private clearEventHandler;
     private pressEventHandler;
 }
