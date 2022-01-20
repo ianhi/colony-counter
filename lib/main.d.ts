@@ -17,4 +17,5 @@ declare class DrawingApp {
     private clearPoints;
     private clearEventHandler;
     private pressEventHandler;
+    private newImg;
 }
