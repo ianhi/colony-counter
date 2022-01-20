@@ -1,3 +1,15 @@
+function arrayToCsv(data: number[][]): string {
+  return data
+    .map(
+      (row) =>
+        row
+          .map(String) // convert every value to String
+          .map((v) => `"${v}"`) // quote it
+          .join(',') // comma-separated
+    )
+    .join('\n'); // rows starting on new lines
+}
+
 class DrawingApp {
   private imgCanvas: HTMLCanvasElement;
   private pointCanvas: HTMLCanvasElement;
@@ -59,6 +71,19 @@ class DrawingApp {
 
     document.getElementById('img-save').addEventListener('click', () => {
       alert('not implemented yet sorry!');
+    });
+
+    document.getElementById('csv-save').addEventListener('click', () => {
+      const url = URL.createObjectURL(
+        new Blob([arrayToCsv(this.clicks)], { type: 'text/csv;charset=utf-8;' })
+      );
+
+      // Create a link to download it
+      const down = document.createElement('a');
+      down.href = url;
+      down.setAttribute('download', 'points.csv');
+      down.click();
+      // should somehow destroy the created link?
     });
 
     document
