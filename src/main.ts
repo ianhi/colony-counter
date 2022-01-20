@@ -44,10 +44,21 @@ class DrawingApp {
     document
       .getElementById('clear')
       .addEventListener('click', this.clearEventHandler);
+
+    const fileUpload = document.getElementById('file-upload');
+    document.getElementById('img-upload').addEventListener('click', () => {
+      fileUpload.click();
+    });
+    fileUpload.addEventListener('input', this.newImg);
+
+    document.getElementById('img-save').addEventListener('click', () => {
+      alert('not implemented yet sorry!');
+    });
   }
 
   private drawImageScaled(): void {
     const canvas = this.imgCanvas;
+    this.imgContext.clearRect(0, 0, canvas.width, canvas.height);
     const img = this.img;
     const hRatio = canvas.width / img.width;
     const vRatio = canvas.height / img.height;
@@ -122,6 +133,20 @@ class DrawingApp {
     const mouseY = e.offsetY - this.pointCanvas.offsetTop;
 
     this.addClick(mouseX, mouseY);
+  };
+
+  // gross any - couldn't figure it out :(
+  private newImg = (e: any): void => {
+    const reader = new FileReader();
+
+    reader.addEventListener(
+      'load',
+      () => {
+        this.img.src = reader.result as string;
+      },
+      false
+    );
+    reader.readAsDataURL((e.target as HTMLInputElement).files[0]);
   };
 }
 
