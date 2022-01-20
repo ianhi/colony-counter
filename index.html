@@ -2,11 +2,12 @@
   <head>
     <meta charset="utf-8" />
     <title>colony counter</title>
-    <script>
+    <!-- <script>
       // TODO: make this toggleable
       document.documentElement.setAttribute('data-theme', 'dark');
-    </script>
-    <link rel="stylesheet" href="css/minstyle.io.css" />
+    </script> -->
+    <link rel="stylesheet" href="css/milligram.css" />
+    <link rel="stylesheet" href="css/milligram.dark.css" />
     <style>
       #wrapper {
         position: relative;
@@ -19,16 +20,8 @@
       }
       #content {
         max-width: 750px;
-        margin: auto;
+        margin: 0 auto;
       }
-      /* #controls {
-        display: inline-block;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        flex-wrap: nowrap;
-        max-width: 90%;
-      } */
       .upload-img {
         max-height: 100%;
         max-width: 100%;
@@ -43,6 +36,29 @@
         height: 100%;
         width: 100%;
       }
+
+      .centerContents {
+          display: flex;
+          align-items: center;
+      }
+      .slidercontainer {
+            display: flex;
+            flex-flow: row;
+            align-items: center;
+            justify-content: flex-start;
+            /* height: 50px; */
+            border: 1px solid red;
+        }
+        .lblFloat
+        {
+            float:left;
+            font-size: 75%;
+            text-align: baseline;
+            padding-left: 1em;
+        }
+      input[type=range] {
+          margin-bottom: 1rem;
+      }
     </style>
   </head>
 
@@ -51,14 +67,41 @@
       <p id="colonyCounter">Colony Count : 0</p>
       <!-- TODO: Add icons from feathericons to these buttons -->
       <div id="imageControls" class="btn-group">
-        <input type="file" id="file-upload" style="display:none;" accept="image/*"/>
-        <button id="img-upload" class="ms-btn">
-          upload new image
-        </button>
+        <input
+          type="file"
+          id="file-upload"
+          style="display: none"
+          accept="image/*"
+        />
+        <button id="img-upload" class="ms-btn">upload new image</button>
         <button id="img-save" class="ms-btn">save image</button>
-        </div>
-        <div class="btn-group">
+      </div>
+      <div class="btn-group">
         <button id="clear" class="ms-btn ms-info">clear points</button>
+      </div>
+      <div class="slidercontainer">
+        <label for="point-size-slider" class="lblFloat">Point Size:</label>
+        <input
+          type="range"
+          min="1"
+          max="25"
+          value="4"
+          step="any"
+          class="slider"
+          id="point-size-slider"
+        />
+      </div>
+      <div class="slidercontainer">
+        <label for="point-alpha-slider" class="lblFloat">Point Opacity:</label>
+        <input
+          type="range"
+          min=".1"
+          max="1"
+          value=".75"
+          step="any"
+          class="slider"
+          id="point-alpha-slider"
+        />
       </div>
       <div id="wrapper">
         <canvas id="imgCanvas" width="490" height="490"></canvas>

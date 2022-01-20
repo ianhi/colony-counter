@@ -4,6 +4,7 @@ class DrawingApp {
   private imgContext: CanvasRenderingContext2D;
   private pointContext: CanvasRenderingContext2D;
   private img: HTMLImageElement;
+  private pointRadius: number;
 
   private clickX: number[] = [];
   private clickY: number[] = [];
@@ -21,14 +22,20 @@ class DrawingApp {
 
     this.pointContext.lineCap = 'round';
     this.pointContext.lineJoin = 'round';
-    this.pointContext.fillStyle = 'rgba(255, 0, 0, 0.5)';
+    this.pointContext.fillStyle = 'rgba(255, 0, 0, 0.75)';
     this.pointContext.lineWidth = 2;
+
+    this.pointRadius = 4;
 
     this.colonyCountDisplay = document.getElementById('colonyCounter');
 
     this.img = new Image();
     this.img.src = 'colonies.png';
     this.img.onload = (): void => {
+      // TODO some sort of resizing to prevent clicking outside of the image
+      // maybe have a maxmimum image size and possibly shrink in either of the directions
+
+      // this.resize_canvases(`${this.img.width}px`, `${this.img.height}px`);
       this.drawImageScaled();
     };
 
@@ -54,7 +61,29 @@ class DrawingApp {
     document.getElementById('img-save').addEventListener('click', () => {
       alert('not implemented yet sorry!');
     });
+
+    document
+      .getElementById('point-size-slider')
+      .addEventListener('input', (e) => {
+        this.pointRadius = (e.target as HTMLInputElement)
+          .value as unknown as number;
+        this.redrawPoints();
+      });
+    document
+      .getElementById('point-alpha-slider')
+      .addEventListener('input', (e) => {
+        const alpha = (e.target as HTMLInputElement).value as unknown as number;
+        this.pointContext.fillStyle = `rgba(255, 0, 0, ${alpha}`;
+        this.redrawPoints();
+      });
   }
+
+  // private resize_canvases(width: string, height: string): void {
+  //   this.imgCanvas.setAttribute('width', width);
+  //   this.imgCanvas.setAttribute('height', height);
+  //   this.pointCanvas.setAttribute('width', width);
+  //   this.pointCanvas.setAttribute('height', height);
+  // }
 
   private drawImageScaled(): void {
     const canvas = this.imgCanvas;
@@ -78,24 +107,24 @@ class DrawingApp {
     );
   }
 
-  // private redrawPoints(): void {
-  //   this.clearPoints();
-  //   const clickX = this.clickX;
-  //   const clickY = this.clickY;
-  //   const context = this.pointContext;
+  private redrawPoints(): void {
+    const clickX = this.clickX;
+    const clickY = this.clickY;
 
-  //   for (let i = 0; i < clickX.length; ++i) {
-  //     context.beginPath();
-  //     context.arc(clickX[i], clickY[i], 2.5, 0, 2 * Math.PI);
-  //     context.fill();
-  //   }
-
-  //   context.closePath();
-  // }
+    this.pointContext.clearRect(
+      0,
+      0,
+      this.pointCanvas.width,
+      this.pointCanvas.height
+    );
+    for (let i = 0; i < clickX.length; ++i) {
+      this.drawPoint(clickX[i], clickY[i]);
+    }
+  }
 
   private drawPoint(x: number, y: number): void {
     this.pointContext.beginPath();
-    this.pointContext.arc(x, y, 2.5, 0, 2 * Math.PI);
+    this.pointContext.arc(x, y, this.pointRadius, 0, 2 * Math.PI);
     this.pointContext.fill();
     this.pointContext.closePath();
   }
