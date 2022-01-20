@@ -6,8 +6,7 @@ class DrawingApp {
   private img: HTMLImageElement;
   private pointRadius: number;
 
-  private clickX: number[] = [];
-  private clickY: number[] = [];
+  private clicks: number[][] = [];
 
   private colonyCount = 0;
   private colonyCountDisplay: HTMLElement;
@@ -108,18 +107,15 @@ class DrawingApp {
   }
 
   private redrawPoints(): void {
-    const clickX = this.clickX;
-    const clickY = this.clickY;
-
     this.pointContext.clearRect(
       0,
       0,
       this.pointCanvas.width,
       this.pointCanvas.height
     );
-    for (let i = 0; i < clickX.length; ++i) {
-      this.drawPoint(clickX[i], clickY[i]);
-    }
+    this.clicks.map((click) => {
+      this.drawPoint(click[0], click[1]);
+    });
   }
 
   private drawPoint(x: number, y: number): void {
@@ -130,8 +126,7 @@ class DrawingApp {
   }
 
   private addClick(x: number, y: number): void {
-    this.clickX.push(x);
-    this.clickY.push(y);
+    this.clicks.push([x, y]);
     this.colonyCount++;
     this.updateCounterDisplay();
     this.drawPoint(x, y);
@@ -149,8 +144,7 @@ class DrawingApp {
       this.pointCanvas.width,
       this.pointCanvas.height
     );
-    this.clickX = [];
-    this.clickY = [];
+    this.clicks = [];
   }
 
   private clearEventHandler = (): void => {
