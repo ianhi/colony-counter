@@ -12,14 +12,12 @@ Contained in the issues, ordered by priority:
 
 To build and see result in the colony-counter folder run the following commands:
 ```bash
-yarn install
-yarn build
+yarn
+yarn watch
 ```
-now open the `index.html` file
 
+if you open the local host server then it will automatically reload when you make any changes.
 
-### Continuous updates
-In one terminal run `yarn watch` and it should watch for file changes and compile everytime you save. You will then need to refresh the page in your browser.
 
 ### Checking lint:
 `yarn eslint`

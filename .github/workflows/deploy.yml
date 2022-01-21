@@ -12,15 +12,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - uses: actions/setup-node@v2
-      - run: npm install
-      - run: npm run build
-      - name: Move files around
-        run: |
-          mkdir dist
-          cp index.html dist
-          cp colonies.png dist
-          cp css dist -r
-          cp lib dist -r
+      - run: yarn install
+      - run: yarn parcel build src/index.html
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.3
         with:

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+const imageUrl = new URL('colonies.png', import.meta.url);
 function arrayToCsv(data: number[][]): string {
   return data
     .map(
@@ -37,11 +39,11 @@ class DrawingApp {
     this.pointContext.lineWidth = 2;
 
     this.pointRadius = 4;
+    console.log('here? 1');
 
     this.colonyCountDisplay = document.getElementById('colonyCounter');
 
     this.img = new Image();
-    this.img.src = 'colonies.png';
     this.img.onload = (): void => {
       // TODO some sort of resizing to prevent clicking outside of the image
       // maybe have a maxmimum image size and possibly shrink in either of the directions
@@ -49,6 +51,10 @@ class DrawingApp {
       // this.resize_canvases(`${this.img.width}px`, `${this.img.height}px`);
       this.drawImageScaled();
     };
+    // @ts-ignore
+    this.img.src = imageUrl;
+    this.drawImageScaled();
+    console.log('here?');
 
     this.createUserEvents();
   }
