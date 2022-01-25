@@ -76,10 +76,11 @@
         />
         <button id="img-upload">upload new image</button>
         <button id="img-save">save image</button>
-        <button id="csv-save">save csv</button>
       </div>
       <div class="btn-group">
         <button id="clear" class="ms-btn ms-info">clear points</button>
+        <button id="upload-points" class="ms-btn ms-info">add points from file</button>
+        <button id="csv-save">save csv</button>
       </div>
       <div class="slidercontainer">
         <label for="point-size-slider" class="lblFloat">Point Size:</label>
@@ -106,8 +107,7 @@
         />
       </div>
       <div id="wrapper">
-        <canvas id="imgCanvas" width="490" height="490"></canvas>
-        <canvas id="pointCanvas" width="490" height="490"></canvas>
+        <canvas id="canvas" tabindex='1' width="490" height="490"></canvas>
       </div>
     </div>
     <script type="module" src="main.ts"></script>
