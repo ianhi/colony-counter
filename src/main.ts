@@ -30,8 +30,6 @@ class DrawingApp {
   private lastPosX: number;
   private lastPosY: number;
   private isDragging = false;
-  private selection = false;
-  private aspect: number;
 
   private colonyCount = 0;
   private colonyCountDisplay: HTMLElement;
@@ -231,7 +229,6 @@ class DrawingApp {
     // this.canvas.isDrawingMode= true;
     if (evt.altKey === true) {
       this.isDragging = true;
-      this.selection = false;
       this.lastPosX = evt.clientX;
       this.lastPosY = evt.clientY;
     } else {
