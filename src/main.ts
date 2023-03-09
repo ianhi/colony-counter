@@ -20,8 +20,8 @@ class DrawingApp {
   private canvas: fabric.Canvas;
   private img: fabric.Image;
   private radius = 4;
+  private opacity = 1;
 
-  private clicks: number[][] = [];
   private circles: fabric.Circle[] = [];
 
   private maxWidth = 512;
@@ -45,21 +45,16 @@ class DrawingApp {
     this.canvas.on('mouse:move', this.mouseMove.bind(this));
     this.canvas.on('mouse:up', this.mouseUp.bind(this));
     this.canvas.on('mouse:down', this.mouseDown.bind(this));
+    // this.canvas.selection = false;
 
     document
       .getElementById('clear')
       .addEventListener('click', this.clearEventHandler);
-    function logKey(e: KeyboardEvent) {
-      console.log(` ${e.code}`);
-      console.log(e.code === 'Delete');
-      // this.canvas.
-    }
-    // document.getElementById('canvas').addEventListener('keydown', logKey);
-    document.addEventListener('keydown', logKey);
+
     document.addEventListener('keydown', (e: KeyboardEvent) => {
       if (['Backspace', 'Delete'].includes(e.key)) {
-        this.canvas.getActiveObjects().forEach((obj) => {
-          this.canvas.remove(obj);
+        this.canvas.getActiveObjects().forEach((circle) => {
+          this.canvas.remove(circle);
         });
         // confusingly this line removes the selection boundary from the deleted
         // objects.
@@ -97,8 +92,11 @@ class DrawingApp {
     });
 
     document.getElementById('csv-save').addEventListener('click', () => {
+      const positions = this.canvas.getObjects('circle').map((circle) => {
+        return [circle.left, circle.top];
+      });
       const url = URL.createObjectURL(
-        new Blob([arrayToCsv(this.clicks)], { type: 'text/csv;charset=utf-8;' })
+        new Blob([arrayToCsv(positions)], { type: 'text/csv;charset=utf-8;' })
       );
 
       // Create a link to download it
@@ -107,6 +105,31 @@ class DrawingApp {
       down.setAttribute('download', 'points.csv');
       down.click();
       // should somehow destroy the created link?
+    });
+
+    const size_slider = document.getElementById(
+      'point-size-slider'
+    ) as HTMLInputElement;
+
+    size_slider.addEventListener('input', () => {
+      this.radius = Number(size_slider.value);
+      this.circles.forEach((circle) => {
+        circle.setRadius(this.radius);
+      });
+      this.canvas.requestRenderAll();
+    });
+
+    const opacity_slider = document.getElementById(
+      'point-alpha-slider'
+    ) as HTMLInputElement;
+
+    opacity_slider.addEventListener('input', () => {
+      this.opacity = Number(opacity_slider.value);
+      const new_fill = `rgba(255,0,255,${this.opacity})`;
+      this.circles.forEach((circle) => {
+        circle.set('fill', new_fill);
+      });
+      this.canvas.requestRenderAll();
     });
   }
   private updateImg(img: Image) {
@@ -144,8 +167,11 @@ class DrawingApp {
   }
 
   private clearEventHandler = (): void => {
-    console.warn('gotta do this!');
-    // this.clearPoints();
+    while (this.circles.length > 0) {
+      this.canvas.remove(this.circles.pop());
+    }
+    this.colonyCount = 0;
+    this.updateCounterDisplay();
   };
   private mouseMove(opt: IEvent<MouseEvent>) {
     if (this.isDragging) {
@@ -168,7 +194,6 @@ class DrawingApp {
     if (zoom < 0.01) {
       zoom = 0.01;
     }
-    // console.log(this.canvas.viewportTransform);
 
     // viewport indexes are:
     // [Sx, Qx, Qy, Sy, Tx, Ty]
@@ -186,7 +211,6 @@ class DrawingApp {
         { x: this.canvas.width / 2, y: this.canvas.height / 2 },
         zoom
       );
-      console.log(zoom);
       // } else if (delta > ) {
       //   // zooming in but mouse is outside image
     } else {
@@ -203,25 +227,29 @@ class DrawingApp {
   }
   private mouseDown = (opt: IEvent<MouseEvent>): void => {
     const evt = opt.e;
+    this.canvas.selection = false;
+    // this.canvas.isDrawingMode= true;
     if (evt.altKey === true) {
       this.isDragging = true;
       this.selection = false;
       this.lastPosX = evt.clientX;
       this.lastPosY = evt.clientY;
     } else {
-      console.log(opt.target);
       if (opt.target) {
         // clicked on a circle!
         return;
       } else {
         const coords = this.canvas.getPointer(opt.e);
-        this.clicks.push([coords.x, coords.y]);
         const circ = new fabric.Circle({
           radius: this.radius,
-          left: coords.x - this.radius,
-          top: coords.y - this.radius,
-          fill: 'rgba(255,0,0,.75)',
+          left: coords.x,
+          top: coords.y,
+          fill: `rgba(255,255,0,${this.opacity})`,
           hasControls: false,
+          centeredScaling: true,
+          originX: 'center',
+          originY: 'center',
+          // canvas.item(0).lockScalingY = true;
           // hasBorders: false,
         });
         // object.hasControls = object.hasBorders = false;
