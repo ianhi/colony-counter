@@ -1,5 +1,9 @@
+import { fabric } from 'fabric';
+import { Image, IEvent } from 'fabric/fabric-impl';
+
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-const imageUrl = new URL('colonies.png', import.meta.url);
+const imageUrl = new URL('colonies.png', import.meta.url); // parcel loading scheme for local file
+
 function arrayToCsv(data: number[][]): string {
   return data
     .map(
@@ -13,75 +17,84 @@ function arrayToCsv(data: number[][]): string {
 }
 
 class DrawingApp {
-  private imgCanvas: HTMLCanvasElement;
-  private pointCanvas: HTMLCanvasElement;
-  private imgContext: CanvasRenderingContext2D;
-  private pointContext: CanvasRenderingContext2D;
-  private img: HTMLImageElement;
-  private pointRadius: number;
+  private canvas: fabric.Canvas;
+  private img: fabric.Image;
+  private radius = 4;
+  private opacity = 1;
 
-  private clicks: number[][] = [];
+  private circles: fabric.Circle[] = [];
+
+  private maxWidth = 512;
+  private maxHeight = 512; // TODO: make these more reactive to the page - this is arbitrary
+
+  private lastPosX: number;
+  private lastPosY: number;
+  private isDragging = false;
 
   private colonyCount = 0;
   private colonyCountDisplay: HTMLElement;
 
   constructor() {
-    this.imgCanvas = document.getElementById('imgCanvas') as HTMLCanvasElement;
-    this.pointCanvas = document.getElementById(
-      'pointCanvas'
-    ) as HTMLCanvasElement;
-    this.imgContext = this.imgCanvas.getContext('2d');
-    this.pointContext = this.pointCanvas.getContext('2d');
-
-    this.pointContext.lineCap = 'round';
-    this.pointContext.lineJoin = 'round';
-    this.pointContext.fillStyle = 'rgba(255, 0, 0, 0.75)';
-    this.pointContext.lineWidth = 2;
-
-    this.pointRadius = 4;
-    console.log('here? 1');
+    this.canvas = new fabric.Canvas('canvas');
 
     this.colonyCountDisplay = document.getElementById('colonyCounter');
 
-    this.img = new Image();
-    this.img.onload = (): void => {
-      // TODO some sort of resizing to prevent clicking outside of the image
-      // maybe have a maxmimum image size and possibly shrink in either of the directions
-
-      // this.resize_canvases(`${this.img.width}px`, `${this.img.height}px`);
-      this.drawImageScaled();
-    };
-    // @ts-ignore
-    this.img.src = imageUrl;
-    this.drawImageScaled();
-    console.log('here?');
-
-    this.createUserEvents();
-  }
-
-  private createUserEvents(): void {
-    const canvas = this.pointCanvas;
-
-    canvas.addEventListener('mousedown', this.pressEventHandler);
-    // canvas.addEventListener('touchstart', this.pressEventHandler);
+    this.canvas.on('mouse:wheel', this.mouseWheel.bind(this));
+    this.canvas.on('mouse:move', this.mouseMove.bind(this));
+    this.canvas.on('mouse:up', this.mouseUp.bind(this));
+    this.canvas.on('mouse:down', this.mouseDown.bind(this));
+    // this.canvas.selection = false;
 
     document
       .getElementById('clear')
       .addEventListener('click', this.clearEventHandler);
 
+    document.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (['Backspace', 'Delete'].includes(e.key)) {
+        this.canvas.getActiveObjects().forEach((circle) => {
+          this.canvas.remove(circle);
+        });
+        // confusingly this line removes the selection boundary from the deleted
+        // objects.
+        this.canvas.discardActiveObject();
+      }
+    });
+
+    this.img = fabric.Image.fromURL(
+      imageUrl.toString(),
+      this.updateImg.bind(this)
+    );
+    // (img) => {
+    //   this.up;
+
+    //   this.resizeWithBounds(this.img.height, this.img.width);
+    //   this.canvas.setBackgroundImage(
+    //     img,
+    //     this.canvas.renderAll.bind(this.canvas),
+    //     {
+    //       scaleX: this.canvas.width / img.width,
+    //       scaleY: this.canvas.height / img.height,
+    //     }
+    //   );
+    // });
+    // this.aspect = this.img.height / this.img.width;
+
     const fileUpload = document.getElementById('file-upload');
     document.getElementById('img-upload').addEventListener('click', () => {
       fileUpload.click();
     });
-    fileUpload.addEventListener('input', this.newImg);
+    fileUpload.addEventListener('change', this.newImg);
 
     document.getElementById('img-save').addEventListener('click', () => {
       alert('not implemented yet sorry!');
     });
 
     document.getElementById('csv-save').addEventListener('click', () => {
+      const positions = this.canvas.getObjects('circle').map((circle) => {
+        return [circle.left, circle.top];
+      });
       const url = URL.createObjectURL(
-        new Blob([arrayToCsv(this.clicks)], { type: 'text/csv;charset=utf-8;' })
+        new Blob([arrayToCsv(positions)], { type: 'text/csv;charset=utf-8;' })
       );
 
       // Create a link to download it
@@ -92,75 +105,58 @@ class DrawingApp {
       // should somehow destroy the created link?
     });
 
-    document
-      .getElementById('point-size-slider')
-      .addEventListener('input', (e) => {
-        this.pointRadius = (e.target as HTMLInputElement)
-          .value as unknown as number;
-        this.redrawPoints();
+    const size_slider = document.getElementById(
+      'point-size-slider'
+    ) as HTMLInputElement;
+
+    size_slider.addEventListener('input', () => {
+      this.radius = Number(size_slider.value);
+      this.circles.forEach((circle) => {
+        circle.setRadius(this.radius);
       });
-    document
-      .getElementById('point-alpha-slider')
-      .addEventListener('input', (e) => {
-        const alpha = (e.target as HTMLInputElement).value as unknown as number;
-        this.pointContext.fillStyle = `rgba(255, 0, 0, ${alpha}`;
-        this.redrawPoints();
+      this.canvas.requestRenderAll();
+    });
+
+    const opacity_slider = document.getElementById(
+      'point-alpha-slider'
+    ) as HTMLInputElement;
+
+    opacity_slider.addEventListener('input', () => {
+      this.opacity = Number(opacity_slider.value);
+      const new_fill = `rgba(255,0,255,${this.opacity})`;
+      this.circles.forEach((circle) => {
+        circle.set('fill', new_fill);
       });
-  }
-
-  // private resize_canvases(width: string, height: string): void {
-  //   this.imgCanvas.setAttribute('width', width);
-  //   this.imgCanvas.setAttribute('height', height);
-  //   this.pointCanvas.setAttribute('width', width);
-  //   this.pointCanvas.setAttribute('height', height);
-  // }
-
-  private drawImageScaled(): void {
-    const canvas = this.imgCanvas;
-    this.imgContext.clearRect(0, 0, canvas.width, canvas.height);
-    const img = this.img;
-    const hRatio = canvas.width / img.width;
-    const vRatio = canvas.height / img.height;
-    const ratio = Math.min(hRatio, vRatio);
-    const shiftX = (canvas.width - img.width * ratio) / 2;
-    const shiftY = (canvas.height - img.height * ratio) / 2;
-    this.imgContext.drawImage(
-      img,
-      0,
-      0,
-      img.width,
-      img.height,
-      shiftX,
-      shiftY,
-      img.width * ratio,
-      img.height * ratio
-    );
-  }
-
-  private redrawPoints(): void {
-    this.pointContext.clearRect(
-      0,
-      0,
-      this.pointCanvas.width,
-      this.pointCanvas.height
-    );
-    this.clicks.map((click) => {
-      this.drawPoint(click[0], click[1]);
+      this.canvas.requestRenderAll();
     });
   }
+  private updateImg(img: Image) {
+    const imgAspect = img.width / img.height;
 
-  private drawPoint(x: number, y: number): void {
-    this.pointContext.beginPath();
-    this.pointContext.arc(x, y, this.pointRadius, 0, 2 * Math.PI);
-    this.pointContext.fill();
-    this.pointContext.closePath();
-  }
-
-  private addClick(x: number, y: number): void {
-    this.clicks.push([x, y]);
-    this.colonyCount++;
-    this.updateCounterDisplay();
-    this.drawPoint(x, y);
+    // TODO: is there a simpler way?
+    // perhaps a nifty fabricjs method?
+    if (img.width > this.maxWidth || img.height > this.maxHeight) {
+      // img bigger than max canvas size
+      if (img.width > img.height) {
+        this.canvas.setWidth(this.maxWidth);
+        this.canvas.setHeight(this.maxWidth / imgAspect);
+      } else {
+        this.canvas.setHeight(this.maxHeight);
+        this.canvas.setWidth(this.maxHeight * imgAspect);
+      }
+    } else {
+      this.canvas.setHeight(Math.min(img.height, this.maxHeight));
+      this.canvas.setHeight(Math.min(img.width, this.maxWidth));
+    }
+    this.canvas.setBackgroundImage(
+      img,
+      this.canvas.renderAll.bind(this.canvas),
+      {
+        scaleX: this.canvas.width / img.width,
+        scaleY: this.canvas.height / img.height,
+      }
+    );
+    this.canvas.renderAll();
   }
 
   private updateCounterDisplay(): void {
@@ -168,38 +164,112 @@ class DrawingApp {
       'Colony Count : ' + this.colonyCount.toString();
   }
 
-  private clearPoints(): void {
-    this.pointContext.clearRect(
-      0,
-      0,
-      this.pointCanvas.width,
-      this.pointCanvas.height
-    );
-    this.clicks = [];
-  }
-
   private clearEventHandler = (): void => {
-    this.clearPoints();
+    while (this.circles.length > 0) {
+      this.canvas.remove(this.circles.pop());
+    }
+    this.colonyCount = 0;
+    this.updateCounterDisplay();
   };
+  private mouseMove(opt: IEvent<MouseEvent>) {
+    if (this.isDragging) {
+      const e = opt.e;
+      const vpt = this.canvas.viewportTransform;
+      vpt[4] += e.clientX - this.lastPosX;
+      vpt[5] += e.clientY - this.lastPosY;
+      this.canvas.requestRenderAll();
+      this.lastPosX = e.clientX;
+      this.lastPosY = e.clientY;
+    }
+  }
+  private mouseWheel(opt: IEvent<WheelEvent>) {
+    const delta = opt.e.deltaY;
+    let zoom = this.canvas.getZoom();
+    zoom *= 0.999 ** delta;
+    if (zoom > 20) {
+      zoom = 20;
+    }
+    if (zoom < 0.01) {
+      zoom = 0.01;
+    }
 
-  private pressEventHandler = (e: MouseEvent): void => {
-    const mouseX = e.offsetX - this.pointCanvas.offsetLeft;
-    const mouseY = e.offsetY - this.pointCanvas.offsetTop;
+    // viewport indexes are:
+    // [Sx, Qx, Qy, Sy, Tx, Ty]
+    // S = scale, Q = skew, T = translate
 
-    this.addClick(mouseX, mouseY);
+    // gimp does this as zoom out as freely as you want
+    // but if you are zooming in and the cursor is outside the image it pushes it
+    // to the edge of the image
+    // TODO: replicate that
+    if (zoom < 0.1) {
+      // center the image in case we've zoomed real far out
+      // so that user doesn't lose the image and can find it again.
+      this.canvas.zoomToPoint(
+        // { x: this.canvas.width / 2, y: this.canvas.height / 2 },
+        { x: this.canvas.width / 2, y: this.canvas.height / 2 },
+        zoom
+      );
+      // } else if (delta > ) {
+      //   // zooming in but mouse is outside image
+    } else {
+      this.canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
+    }
+    opt.e.preventDefault();
+    opt.e.stopPropagation();
+  }
+  private mouseUp(opt: IEvent<MouseEvent>) {
+    // on mouse up we want to recalculate new interaction
+    // for all objects, so we call setViewportTransform
+    this.canvas.setViewportTransform(this.canvas.viewportTransform);
+    this.isDragging = false;
+  }
+  private mouseDown = (opt: IEvent<MouseEvent>): void => {
+    const evt = opt.e;
+    this.canvas.selection = false;
+    // this.canvas.isDrawingMode= true;
+    if (evt.altKey === true) {
+      this.isDragging = true;
+      this.lastPosX = evt.clientX;
+      this.lastPosY = evt.clientY;
+    } else {
+      if (opt.target) {
+        // clicked on a circle!
+        return;
+      } else {
+        const coords = this.canvas.getPointer(opt.e);
+        const circ = new fabric.Circle({
+          radius: this.radius,
+          left: coords.x,
+          top: coords.y,
+          fill: `rgba(255,255,0,${this.opacity})`,
+          hasControls: false,
+          centeredScaling: true,
+          originX: 'center',
+          originY: 'center',
+          // canvas.item(0).lockScalingY = true;
+          // hasBorders: false,
+        });
+        // object.hasControls = object.hasBorders = false;
+        this.canvas.add(circ);
+        this.circles.push(circ);
+        this.canvas.renderAll();
+        this.colonyCount++;
+        this.updateCounterDisplay();
+      }
+    }
   };
 
   // gross any - couldn't figure it out :(
   private newImg = (e: any): void => {
     const reader = new FileReader();
 
-    reader.addEventListener(
-      'load',
-      () => {
-        this.img.src = reader.result as string;
-      },
-      false
-    );
+    reader.addEventListener('load', (f) => {
+      this.canvas.remove(this.img);
+      const data = f.target.result as string;
+      this.img = fabric.Image.fromURL(data, (img) => {
+        this.updateImg(img);
+      });
+    });
     reader.readAsDataURL((e.target as HTMLInputElement).files[0]);
   };
 }
