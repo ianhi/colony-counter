@@ -11,7 +11,7 @@ function arrayToCsv(data: number[][]): string {
         row
           .map(String) // convert every value to String
           .map((v) => `"${v}"`) // quote it
-          .join(',') // comma-separated
+          .join(','), // comma-separated
     )
     .join('\n'); // rows starting on new lines
 }
@@ -62,7 +62,7 @@ class DrawingApp {
 
     this.img = fabric.Image.fromURL(
       imageUrl.toString(),
-      this.updateImg.bind(this)
+      this.updateImg.bind(this),
     );
     // (img) => {
     //   this.up;
@@ -94,7 +94,7 @@ class DrawingApp {
         return [circle.left, circle.top];
       });
       const url = URL.createObjectURL(
-        new Blob([arrayToCsv(positions)], { type: 'text/csv;charset=utf-8;' })
+        new Blob([arrayToCsv(positions)], { type: 'text/csv;charset=utf-8;' }),
       );
 
       // Create a link to download it
@@ -106,7 +106,7 @@ class DrawingApp {
     });
 
     const size_slider = document.getElementById(
-      'point-size-slider'
+      'point-size-slider',
     ) as HTMLInputElement;
 
     size_slider.addEventListener('input', () => {
@@ -118,7 +118,7 @@ class DrawingApp {
     });
 
     const opacity_slider = document.getElementById(
-      'point-alpha-slider'
+      'point-alpha-slider',
     ) as HTMLInputElement;
 
     opacity_slider.addEventListener('input', () => {
@@ -154,7 +154,7 @@ class DrawingApp {
       {
         scaleX: this.canvas.width / img.width,
         scaleY: this.canvas.height / img.height,
-      }
+      },
     );
     this.canvas.renderAll();
   }
@@ -207,7 +207,7 @@ class DrawingApp {
       this.canvas.zoomToPoint(
         // { x: this.canvas.width / 2, y: this.canvas.height / 2 },
         { x: this.canvas.width / 2, y: this.canvas.height / 2 },
-        zoom
+        zoom,
       );
       // } else if (delta > ) {
       //   // zooming in but mouse is outside image
